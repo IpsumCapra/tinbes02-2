@@ -21,9 +21,31 @@ void setupFS() {
 }
 
 bool writeFATEntry(FATEntry entry) {
-    return true;
+    if (noOfFiles < 10) {
+        EEPROM.put((noOfFiles - 1) * 16 + 1, entry);
+        noOfFiles++;
+        return true;
+    }
+    return false;
 }
 
-bool readFATEntry(int start, FATEntry& entry) {
+bool readFATEntry(int file, FATEntry& entry) {
+    if (file <= noOfFiles) {
+        entry = EEPROM.get((file - 1) * 16 + 1, entry);
+        return true;
+    }
+    return false;
+}
+
+bool deleteFATEntry(int file) {
+    if (file <= noOfFiles) {
+        for (int i = file; i < 9; i++) {
+            FATEntry temp;
+            EEPROM.get((i) * 16 + 1, temp);
+            EEPROM.put((i - 1) * 16 + 1, temp);
+        }
+        noOfFiles--;
+        return true;
+    }
     return false;
 }

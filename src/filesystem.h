@@ -10,7 +10,9 @@ struct FATEntry {
 };
 
 bool writeFATEntry(FATEntry entry);
-FATEntry readFATEntry(int start);
+bool readFATEntry(int file, FATEntry& entry);
+bool deleteFATEntry(int file);
+void defrag();
 void setupFS();
 
 #endif //ARDUINOS_FILESYSTEM_H

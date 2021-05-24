@@ -11,5 +11,6 @@ struct FATEntry {
 
 bool writeFATEntry(FATEntry entry);
 FATEntry readFATEntry(int start);
+void setupFS();
 
 #endif //ARDUINOS_FILESYSTEM_H

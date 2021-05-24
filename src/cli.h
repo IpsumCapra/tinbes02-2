@@ -1,5 +1,5 @@
 #include <constants.h>
-#include <test.h>
+#include <cli_commands.h>
 
 #ifndef ARDUINOS_CLI_H
 #define ARDUINOS_CLI_H

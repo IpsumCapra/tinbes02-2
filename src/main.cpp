@@ -1,5 +1,4 @@
 #include <Arduino.h>
-#include <EEPROM.h>
 #include <cli.h>
 #include <filesystem.h>
 #include <constants.h>

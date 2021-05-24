@@ -65,6 +65,10 @@ void processInput() {
         }
 
         if (temp == '\n') {
+            // Try to append a space to make sure first token is always found.
+            if (commandBufferPointer < CBUFSIZE - 1) {
+                commandBuffer[commandBufferPointer - 1] = ' ';
+            }
             if (!handleCommand()) {
                 Serial.println("Incorrect command / command not recognized");
             }

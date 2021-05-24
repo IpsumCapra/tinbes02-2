@@ -1,4 +1,4 @@
-#include <test.h>
+#include <cli_commands.h>
 
 void store(Parameters pars) {
     Serial.println("store");

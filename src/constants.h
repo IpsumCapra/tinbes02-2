@@ -8,4 +8,7 @@
 // CLI constants
 #define CBUFSIZE 12
 
+// FS constatns
+#define NAMESIZE 12
+
 #endif //ARDUINOS_CONSTANTS_H

@@ -5,6 +5,7 @@
 #define ARDUINOS_FILESYSTEM_H
 
 EERef noOfFiles = EEPROM[0];
+int diskSize;
 
 struct FATEntry {
     char filename[NAMESIZE];

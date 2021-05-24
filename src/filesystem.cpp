@@ -3,8 +3,9 @@
 #include <EEPROM.h>
 
 void setupFS() {
+    diskSize = EEPROM.length();
     Serial.print("EEPROM size: ");
-    Serial.println(EEPROM.length());
+    Serial.println(diskSize);
 
     // Check if there is a FS structure available, create one if there isn't.
     if (noOfFiles > MAXFILES) {

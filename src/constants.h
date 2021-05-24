@@ -10,5 +10,6 @@
 
 // FS constatns
 #define NAMESIZE 12
+#define MAXFILES 10
 
 #endif //ARDUINOS_CONSTANTS_H

@@ -1,7 +1,10 @@
 #include <constants.h>
+#include <EEPROM.h>
 
 #ifndef ARDUINOS_FILESYSTEM_H
 #define ARDUINOS_FILESYSTEM_H
+
+EERef noOfFiles = EEPROM[0];
 
 struct FATEntry {
     char filename[NAMESIZE];
@@ -9,10 +12,14 @@ struct FATEntry {
     int length;
 };
 
+void setupFS();
+
 bool writeFATEntry(FATEntry entry);
 bool readFATEntry(int file, FATEntry& entry);
 bool deleteFATEntry(int file);
+
+int lookupEntry(char name[NAMESIZE]);
+
 void defrag();
-void setupFS();
 
 #endif //ARDUINOS_FILESYSTEM_H

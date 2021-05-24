@@ -2,15 +2,12 @@
 #include <Arduino.h>
 #include <EEPROM.h>
 
-EERef noOfFiles = EEPROM[0];
-
-
 void setupFS() {
     Serial.print("EEPROM size: ");
     Serial.println(EEPROM.length());
 
     // Check if there is a FS structure available, create one if there isn't.
-    if (noOfFiles > 10) {
+    if (noOfFiles > MAXFILES) {
         Serial.println("Creating filesystem.");
         noOfFiles = 0;
     } else if (noOfFiles > 0) {
@@ -21,7 +18,7 @@ void setupFS() {
 }
 
 bool writeFATEntry(FATEntry entry) {
-    if (noOfFiles < 10) {
+    if (noOfFiles < MAXFILES) {
         EEPROM.put((noOfFiles - 1) * 16 + 1, entry);
         noOfFiles++;
         return true;
@@ -39,7 +36,7 @@ bool readFATEntry(int file, FATEntry& entry) {
 
 bool deleteFATEntry(int file) {
     if (file <= noOfFiles) {
-        for (int i = file; i < 9; i++) {
+        for (int i = file; i < MAXFILES - 1; i++) {
             FATEntry temp;
             EEPROM.get((i) * 16 + 1, temp);
             EEPROM.put((i - 1) * 16 + 1, temp);
@@ -48,4 +45,15 @@ bool deleteFATEntry(int file) {
         return true;
     }
     return false;
+}
+
+int lookupEntry(char name[NAMESIZE]) {
+    for (int i = 1; i < MAXFILES + 1; i++) {
+        FATEntry entry;
+        readFATEntry(i, entry);
+        if (strcmp(entry.filename, name) == 0) {
+            return i;
+        }
+    }
+    return -1;
 }

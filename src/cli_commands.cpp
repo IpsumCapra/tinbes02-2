@@ -4,9 +4,11 @@
 
 void store(Parameters pars) {
     int size = 0;
-    for (int i = 0; i < sizeof(pars[1]); i++) {
-        if (isDigit(pars[1][i])) {
-            int ic = pars[1][i] - '0';
+    int numSize = sizeof(pars[1]);
+    for (int i = 0; i < numSize; i++) {
+        int idx = numSize - 1 - i;
+        if (isDigit(pars[1][idx])) {
+            int ic = pars[1][idx] - '0';
             size += ic * pow(10, i);
         }
     }

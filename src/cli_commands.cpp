@@ -3,15 +3,7 @@
 #include <Arduino.h>
 
 void store(Parameters pars) {
-    int size = 0;
-    int numSize = sizeof(pars[1]);
-    for (int i = 0; i < numSize; i++) {
-        int idx = numSize - 1 - i;
-        if (isDigit(pars[1][idx])) {
-            int ic = pars[1][idx] - '0';
-            size += ic * pow(10, i);
-        }
-    }
+    int size = strtol(pars[1], NULL, 10);
 
     if(storeFile(pars[0], size)) {
         Serial.println("File stored successfully.");
@@ -27,8 +19,11 @@ void retrieve(Parameters pars) {
 }
 
 void erase(Parameters pars) {
-    Serial.println("erase");
-    Serial.println(pars[0]);
+    if(deleteFile(pars[0])) {
+        Serial.println("File deleted successfully.");
+    } else {
+        Serial.println("Could not delete file.");
+    }
 }
 
 void files(Parameters pars) {

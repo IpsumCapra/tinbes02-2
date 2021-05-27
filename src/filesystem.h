@@ -14,6 +14,7 @@ void setupFS();
 
 bool writeFATEntry(FATEntry entry);
 bool readFATEntry(int file, FATEntry& entry);
+bool updateFATEntry(int file, FATEntry entry);
 bool deleteFATEntry(int file);
 
 int lookupEntry(char name[NAMESIZE]);

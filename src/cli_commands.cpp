@@ -1,15 +1,27 @@
 #include <cli_commands.h>
+#include <filesystem.h>
+#include <Arduino.h>
 
 void store(Parameters pars) {
-    Serial.println("store");
-    Serial.println(pars[0]);
-    Serial.println(pars[1]);
-    Serial.println(pars[2]);
+    int size = 0;
+    for (int i = 0; i < sizeof(pars[1]); i++) {
+        if (isDigit(pars[1][i])) {
+            int ic = pars[1][i] - '0';
+            size += ic * pow(10, i);
+        }
+    }
+
+    if(storeFile(pars[0], size)) {
+        Serial.println("File stored successfully.");
+    } else {
+        Serial.println("Could not store file.");
+    }
 }
 
 void retrieve(Parameters pars) {
-    Serial.println("retrieve");
-    Serial.println(pars[0]);
+    if(!retrieveFile(pars[0])) {
+        Serial.println("Could not retrieve file.");
+    }
 }
 
 void erase(Parameters pars) {
@@ -18,11 +30,13 @@ void erase(Parameters pars) {
 }
 
 void files(Parameters pars) {
-    Serial.println("files");
+    listFiles();
 }
 
 void freespace(Parameters pars) {
-    Serial.println("freespace");
+    Serial.print("Free space: ");
+    Serial.print(freeSpace());
+    Serial.println(" bytes");
 }
 
 void run(Parameters pars) {
@@ -47,4 +61,12 @@ void resume(Parameters pars) {
 void kill(Parameters pars) {
     Serial.println("kill");
     Serial.println(pars[0]);
+}
+
+void reformat(Parameters pars) {
+    EEPROM[0] = 0;
+    for (int i = 1; i < EEPROM.length(); i++) {
+        EEPROM[i] = 255;
+    }
+    Serial.println("Reformat complete.");
 }

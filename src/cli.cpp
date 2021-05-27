@@ -26,7 +26,8 @@ bool handleCommand() {
 
     int size = tokenCount(commandBuffer);
     if (size == 0) {
-        return false;
+        Serial.println();
+        return true;
     }
 
     char temp[CBUFSIZE];

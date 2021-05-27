@@ -15,7 +15,7 @@ struct Command {
 };
 
 static Command commands[] = {
-        Command("store", store, 3),
+        Command("store", store, 2),
         Command("retrieve", retrieve,1),
         Command("erase", erase,1),
         Command("files", files, 0),
@@ -24,7 +24,8 @@ static Command commands[] = {
         Command("list", list, 0),
         Command("suspend", suspend, 1),
         Command("resume", resume, 1),
-        Command("kill", kill,1)
+        Command("kill", kill,1),
+        Command("reformat", reformat, 0)
 };
 
 bool handleCommand();

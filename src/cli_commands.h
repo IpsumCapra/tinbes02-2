@@ -16,5 +16,6 @@ void list(Parameters);
 void suspend(Parameters);
 void resume(Parameters);
 void kill(Parameters);
+void reformat(Parameters);
 
 #endif //ARDUINOS_TEST_H

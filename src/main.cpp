@@ -6,6 +6,7 @@
 void setup() {
     // Setup serial.
     Serial.begin(BAUD_RATE);
+    Serial.setTimeout(-1);
     Serial.println("Serial ready.");
 
     // Setup filesystem.

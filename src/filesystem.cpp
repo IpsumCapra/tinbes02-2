@@ -23,9 +23,6 @@ void setupFS() {
 
 bool writeFATEntry(FATEntry entry) {
     if (noOfFiles < MAXFILES) {
-        Serial.println(entry.filename);
-        Serial.println(entry.start);
-        Serial.println(entry.length);
         EEPROM.put(noOfFiles * 16 + 1, entry);
         noOfFiles++;
         return true;
@@ -36,6 +33,14 @@ bool writeFATEntry(FATEntry entry) {
 bool readFATEntry(int file, FATEntry &entry) {
     if (file <= noOfFiles) {
         EEPROM.get((file - 1) * 16 + 1, entry);
+        return true;
+    }
+    return false;
+}
+
+bool updateFATEntry(int file, FATEntry entry) {
+    if (file <= noOfFiles) {
+        EEPROM.put((file - 1) * 16 + 1, entry);
         return true;
     }
     return false;
@@ -78,6 +83,10 @@ int freeSpace() {
 }
 
 bool storeFile(char name[NAMESIZE], int size) {
+    if (size <= 0) {
+        Serial.println("Invalid size.");
+        return false;
+    }
     if (lookupEntry(name) != -1) {
         Serial.println("File with specified name already exists.");
         return false;
@@ -125,14 +134,14 @@ bool retrieveFile(char name[NAMESIZE]) {
 
     if (entry != -1) {
         FATEntry fEntry;
-        if (!readFATEntry(entry, fEntry)) {
-            Serial.println("Something went wrong.");
-            return false;
-        } else {
+        if (readFATEntry(entry, fEntry)) {
             for (int i = 0; i < fEntry.length; i++) {
                 char read = EEPROM[fEntry.start + i];
                 Serial.print(read);
             }
+        } else {
+            Serial.println("Something went wrong.");
+            return false;
         }
 
     } else {
@@ -144,7 +153,46 @@ bool retrieveFile(char name[NAMESIZE]) {
 }
 
 bool deleteFile(char name[NAMESIZE]) {
+    int file = lookupEntry(name);
+    if (file == -1) {
+        Serial.println("File does not exist.");
+        return false;
+    }
 
+    if (file == noOfFiles) {
+        deleteFATEntry(file);
+    } else {
+        FATEntry entry;
+        if (readFATEntry(file, entry)) {
+            FATEntry lastEntry;
+            if(!readFATEntry(noOfFiles, lastEntry)) {
+                Serial.println("Defragmentation failure.");
+                return false;
+            }
+            for(int i = entry.start; i < lastEntry.start + lastEntry.length - entry.length; i++) {
+                EEPROM[i] = EEPROM[i + entry.length];
+            }
+            for (int i = file + 1; i <= noOfFiles; i++) {
+                FATEntry newEntry;
+                if(!readFATEntry(i, newEntry)) {
+                    Serial.println("Critical defragmentation failure. FS Corrupt.");
+                    return false;
+                }
+                newEntry.start -= entry.length;
+                if(!updateFATEntry(i, newEntry)) {
+                    Serial.println("Critical defragmentation failure.");
+                    return false;
+                }
+            }
+            deleteFATEntry(file);
+        } else {
+            Serial.println("Something went wrong. Possible FS corruption!");
+            return false;
+        }
+
+    }
+
+    return true;
 }
 
 void listFiles() {

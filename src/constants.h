@@ -8,9 +8,16 @@
 // CLI constants
 #define CBUFSIZE 64
 
-// FS constatns
+// FS constants
 #define NAMESIZE 12
 #define MAXFILES 10
 #define FATSIZE 161
+
+// Memory constants
+#define STACKSIZE 32
+#define CHAR 1
+#define INT 2
+#define FLOAT 4
+
 
 #endif //ARDUINOS_CONSTANTS_H

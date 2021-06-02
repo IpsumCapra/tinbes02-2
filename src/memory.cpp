@@ -3,7 +3,7 @@
 bool pushByte(byte b, stack &stack) {
     int &sp = stack.sp;
     if (sp < STACKSIZE - 1) {
-        stack.stack[++sp] = b;
+        stack.stack[sp++] = b;
         return true;
     }
     return false;
@@ -12,7 +12,7 @@ bool pushByte(byte b, stack &stack) {
 bool popByte(byte &b, stack &stack) {
     int &sp = stack.sp;
     if (sp > 0) {
-        b = stack.stack[sp--];
+        b = stack.stack[--sp];
         return true;
     }
     return false;

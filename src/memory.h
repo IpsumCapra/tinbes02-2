@@ -34,6 +34,6 @@ int varExists(char name, int process);
 
 bool setVar(char name, int process, stack &stack);
 bool getVar(char name, int process, stack &stack);
-bool wipeVars(int process);
+void wipeVars(int process);
 
 #endif //ARDUINOS_MEMORY_H

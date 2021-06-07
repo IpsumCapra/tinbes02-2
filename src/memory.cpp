@@ -214,3 +214,11 @@ bool getVar(char name, int process, stack &stack) {
     }
     return true;
 }
+
+void wipeVars(int process) {
+    for (int i = 0; i < noOfVars; i++) {
+        if (variables[i].process == process) {
+            deleteMemEntry(i);
+        }
+    }
+}

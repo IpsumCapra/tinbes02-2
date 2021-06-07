@@ -32,6 +32,8 @@ bool findSpace(int size, int &address);
 
 int varExists(char name, int process);
 
-bool setVar(char name, int process);
+bool setVar(char name, int process, stack &stack);
+bool getVar(char name, int process, stack &stack);
+bool wipeVars(int process);
 
 #endif //ARDUINOS_MEMORY_H

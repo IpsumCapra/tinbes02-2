@@ -159,6 +159,58 @@ bool setVar(char name, int process, stack &stack) {
         memory[address + i] = temp;
     }
 
+    // Write new mem entry.
     writeMemEntry({name, type, address, process});
-    return false;
+    return true;
+}
+
+bool getVar(char name, int process, stack &stack) {
+    // Check amount of variables.
+    if (noOfVars == 0) {
+        Serial.println("No variables.");
+        return false;
+    }
+
+    // Check for existence.
+    int varId = varExists(name, process);
+    if (varId == -1) {
+        Serial.println("Variable does not exist.");
+        return false;
+    }
+
+    memEntry entry = variables[varId];
+
+    int type = entry.type;
+    int address = entry.address;
+
+    if (type != STRING) {
+        for (int i = 0; i < type; i++) {
+            if (!pushByte(memory[address + i], stack)) {
+                Serial.println("Stack full, read failed.");
+                return false;
+            }
+        }
+    } else {
+        int size = 0;
+        while (memory[address + size] != 0) {
+            if (!pushByte(memory[address + size++], stack)) {
+                Serial.println("Stack full, read failed.");
+                return false;
+            }
+        }
+        if (!pushByte(memory[address + size], stack)) {
+            Serial.println("Stack full, failed to push terminating zero.");
+            return false;
+        }
+        if (!pushByte(size, stack)) {
+            Serial.println("Stack full, failed to push size.");
+            return false;
+        }
+    }
+
+    if (!pushByte(type, stack)) {
+        Serial.println("Stack full, failed to push type.");
+        return false;
+    }
+    return true;
 }

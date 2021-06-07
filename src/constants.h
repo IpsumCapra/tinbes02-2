@@ -15,9 +15,11 @@
 
 // Memory constants
 #define STACKSIZE 32
+#define MAXVARS 25
+#define RAMSIZE 256
 #define CHAR 1
 #define INT 2
-#define FLOAT 3 // Size = 4
-#define STRING 4
+#define STRING 3
+#define FLOAT 4
 
 #endif //ARDUINOS_CONSTANTS_H

@@ -4,6 +4,8 @@
 #ifndef ARDUINOS_MEMORY_H
 #define ARDUINOS_MEMORY_H
 
+byte memory[RAMSIZE];
+
 struct stack {
     int sp;
     byte stack[STACKSIZE];
@@ -16,10 +18,20 @@ struct memEntry {
     int process;
 };
 
-bool pushByte(byte b, stack &stack);
+memEntry variables[MAXVARS];
 
+bool writeMemEntry(memEntry entry);
+bool deleteMemEntry(int entry);
+
+bool pushByte(byte b, stack &stack);
 bool popByte(byte &b, stack &stack);
 
-bool saveVar(byte name, int process);
+int varEndAddress(memEntry entry);
+
+bool findSpace(int size, int &address);
+
+int varExists(char name, int process);
+
+bool setVar(char name, int process);
 
 #endif //ARDUINOS_MEMORY_H

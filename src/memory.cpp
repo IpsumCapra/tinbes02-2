@@ -1,8 +1,9 @@
 #include <memory.h>
-#include <EEPROM.h>
 #include <Arduino.h>
 
 int noOfVars = 0;
+memEntry variables[MAXVARS];
+byte memory[RAMSIZE];
 
 bool writeMemEntry(memEntry entry) {
     if (noOfVars == MAXVARS) {
@@ -174,7 +175,7 @@ bool getVar(char name, int process, stack &stack) {
     // Check for existence.
     int varId = varExists(name, process);
     if (varId == -1) {
-        Serial.println("Variable does not exist.");
+        Serial.println("Var does not exist.");
         return false;
     }
 
@@ -186,7 +187,6 @@ bool getVar(char name, int process, stack &stack) {
     if (type != STRING) {
         for (int i = 0; i < type; i++) {
             if (!pushByte(memory[address + i], stack)) {
-                Serial.println("Stack full, read failed.");
                 return false;
             }
         }
@@ -194,22 +194,17 @@ bool getVar(char name, int process, stack &stack) {
         int size = 0;
         while (memory[address + size] != 0) {
             if (!pushByte(memory[address + size++], stack)) {
-                Serial.println("Stack full, read failed.");
                 return false;
             }
         }
         if (!pushByte(memory[address + size], stack)) {
-            Serial.println("Stack full, failed to push terminating zero.");
             return false;
         }
-        if (!pushByte(size, stack)) {
-            Serial.println("Stack full, failed to push size.");
+        if (!pushByte(++size, stack)) {
             return false;
         }
     }
-
     if (!pushByte(type, stack)) {
-        Serial.println("Stack full, failed to push type.");
         return false;
     }
     return true;
@@ -221,4 +216,16 @@ void wipeVars(int process) {
             deleteMemEntry(i);
         }
     }
+}
+
+void memDump(stack stack) {
+    Serial.println(stack.sp);
+
+    for (int i = 0; i < stack.sp; i++) {
+        Serial.print(i);
+        Serial.print(": ");
+        Serial.println(stack.stack[i]);
+    }
+
+    Serial.println();
 }

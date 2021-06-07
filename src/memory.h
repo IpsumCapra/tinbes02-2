@@ -4,10 +4,8 @@
 #ifndef ARDUINOS_MEMORY_H
 #define ARDUINOS_MEMORY_H
 
-byte memory[RAMSIZE];
-
 struct stack {
-    int sp;
+    int sp = 0;
     byte stack[STACKSIZE];
 };
 
@@ -17,8 +15,6 @@ struct memEntry {
     int address;
     int process;
 };
-
-memEntry variables[MAXVARS];
 
 bool writeMemEntry(memEntry entry);
 bool deleteMemEntry(int entry);
@@ -35,5 +31,7 @@ int varExists(char name, int process);
 bool setVar(char name, int process, stack &stack);
 bool getVar(char name, int process, stack &stack);
 void wipeVars(int process);
+
+void memDump(stack stack);
 
 #endif //ARDUINOS_MEMORY_H

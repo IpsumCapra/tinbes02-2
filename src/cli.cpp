@@ -71,7 +71,7 @@ void processInput() {
                 commandBuffer[commandBufferPointer - 1] = ' ';
             }
             if (!handleCommand()) {
-                Serial.println("Incorrect command / command not recognized");
+                Serial.println("Command not recognized");
             }
 
             // Clear command buffer.

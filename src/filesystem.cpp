@@ -175,18 +175,18 @@ bool deleteFile(char name[NAMESIZE]) {
             for (int i = file + 1; i <= noOfFiles; i++) {
                 FATEntry newEntry;
                 if(!readFATEntry(i, newEntry)) {
-                    Serial.println("Critical defragmentation failure. FS Corrupt.");
+                    Serial.println("FS Corrupt.");
                     return false;
                 }
                 newEntry.start -= entry.length;
                 if(!updateFATEntry(i, newEntry)) {
-                    Serial.println("Critical defragmentation failure.");
+                    Serial.println("Defragmentation failure.");
                     return false;
                 }
             }
             deleteFATEntry(file);
         } else {
-            Serial.println("Something went wrong. Possible FS corruption!");
+            Serial.println("Something went wrong.");
             return false;
         }
 

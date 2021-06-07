@@ -14,18 +14,18 @@ struct Command {
     Callback callback;
 };
 
-static Command commands[] = {
-        Command("store", store, 2),
-        Command("retrieve", retrieve,1),
-        Command("erase", erase,1),
-        Command("files", files, 0),
-        Command("freespace", freespace, 0),
-        Command("run", run, 1),
-        Command("list", list, 0),
-        Command("suspend", suspend, 1),
-        Command("resume", resume, 1),
-        Command("kill", kill,1),
-        Command("reformat", reformat, 0)
+const Command commands[] = {
+        {"store", &store, 2},
+        {"retrieve", &retrieve,1},
+        {"erase", &erase,1},
+        {"files", &files, 0},
+        {"freespace", &freespace, 0},
+        {"run", &run, 1},
+        {"list", &list, 0},
+        {"suspend", &suspend, 1},
+        {"resume", &resume, 1},
+        {"kill", &kill,1},
+        {"reformat", &reformat, 0}
 };
 
 bool handleCommand();

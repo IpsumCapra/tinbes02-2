@@ -7,7 +7,6 @@ byte memory[RAMSIZE];
 
 bool writeMemEntry(memEntry entry) {
     if (noOfVars == MAXVARS) {
-        Serial.println("Max amount of variables reached.");
         return false;
     }
     variables[noOfVars++] = entry;
@@ -16,7 +15,6 @@ bool writeMemEntry(memEntry entry) {
 
 bool deleteMemEntry(int entry) {
     if (noOfVars == 0) {
-        Serial.println("Nothing to delete.");
         return false;
     }
 
@@ -121,14 +119,14 @@ bool setVar(char name, int process, stack &stack) {
 
     // Too many vars?
     if (noOfVars == MAXVARS) {
-        Serial.println("Maximum amount of variables reached.");
+        Serial.println("Max amount reached.");
         return false;
     }
 
     // Get variable type from stack.
     byte type;
     if (!popByte(type, stack)) {
-        Serial.println("Stack not valid for operation.");
+        Serial.println("Stack not valid");
         return false;
     }
 
@@ -146,7 +144,7 @@ bool setVar(char name, int process, stack &stack) {
     // Try to allocate space.
     int address;
     if(!findSpace(size, address)) {
-        Serial.println("Not enough space available.");
+        Serial.println("Not enough space.");
         return false;
     }
 
@@ -154,7 +152,7 @@ bool setVar(char name, int process, stack &stack) {
     for (int i = size - 1; i >= 0; i--) {
         byte temp;
         if (!popByte(temp, stack)) {
-            Serial.println("Invalid variable. Write failed.");
+            Serial.println("Invalid variable.");
             return false;
         }
         memory[address + i] = temp;

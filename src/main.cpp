@@ -14,27 +14,6 @@ void setup() {
     setupFS();
 
     Serial.println("\nArduinOS RDY");
-
-    stack stack;
-
-    pushByte('H', stack);
-    pushByte('e', stack);
-    pushByte('l', stack);
-    pushByte('l', stack);
-    pushByte('o', stack);
-    pushByte(0, stack);
-    pushByte(6, stack);
-    pushByte(STRING, stack);
-
-    memDump(stack);
-
-    setVar('s', 2, stack);
-
-    memDump(stack);
-
-    getVar('s', 2, stack);
-
-    memDump(stack);
 }
 
 void loop() {

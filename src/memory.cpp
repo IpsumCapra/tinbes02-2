@@ -209,7 +209,8 @@ bool getVar(char name, int process, stack &stack) {
 }
 
 void wipeVars(int process) {
-    for (int i = 0; i < noOfVars; i++) {
+    int size = noOfVars;
+    for (int i = size - 1; i >= 0; i--) {
         if (variables[i].process == process) {
             deleteMemEntry(i);
         }

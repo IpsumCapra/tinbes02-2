@@ -39,10 +39,10 @@ bool pushByte(byte b, stack &stack) {
     return false;
 }
 
-bool popByte(byte &b, stack &stack) {
+bool popByte(byte &b, stack &stack, bool peek) {
     int &sp = stack.sp;
     if (sp > 0) {
-        b = stack.stack[--sp];
+        b = stack.stack[peek ? sp-1 : --sp];
         return true;
     }
     return false;
@@ -125,7 +125,7 @@ bool setVar(char name, int process, stack &stack) {
 
     // Get variable type from stack.
     byte type;
-    if (!popByte(type, stack)) {
+    if (!popByte(type, stack, false)) {
         Serial.println(F("Stack not valid"));
         return false;
     }
@@ -135,7 +135,7 @@ bool setVar(char name, int process, stack &stack) {
     if (type != STRING) {
         size = type;
     } else {
-        if (!popByte(size, stack)) {
+        if (!popByte(size, stack, false)) {
             Serial.println(F("No string size found."));
             return false;
         }
@@ -151,7 +151,7 @@ bool setVar(char name, int process, stack &stack) {
     // Write info.
     for (int i = size - 1; i >= 0; i--) {
         byte temp;
-        if (!popByte(temp, stack)) {
+        if (!popByte(temp, stack, false)) {
             Serial.println(F("Invalid variable."));
             return false;
         }
@@ -227,4 +227,123 @@ void memDump(stack stack) {
     }
 
     Serial.println();
+}
+
+bool pushInt(int i, stack &stack) {
+    if (stack.sp > STACKSIZE - 4) {
+        return false;
+    }
+    pushByte(highByte(i), stack);
+    pushByte(lowByte(i), stack);
+    pushByte(INT, stack);
+    return true;
+}
+
+bool pushFloat(float f, stack &stack) {
+    if (stack.sp > STACKSIZE - 6) {
+        return false;
+    }
+    byte b[4];
+    auto *pf = (float *)b;
+    *pf = f;
+    for (int i = 3; i >= 0; i--) {
+        pushByte(b[i], stack);
+    }
+    pushByte(FLOAT, stack);
+    return true;
+}
+
+bool popInt(int &i, stack &stack, bool peek) {
+    if (stack.sp < INT) {
+        return false;
+    }
+    byte hb;
+    byte lb;
+
+    popByte(lb, stack, false);
+    if (peek) {
+        popByte(hb, stack, true);
+        pushByte(lb, stack);
+    } else {
+        popByte(hb, stack, false);
+    }
+    Serial.println(lb);
+    Serial.println(hb);
+    i = word(hb, lb);
+    return true;
+}
+
+bool popFloat(float &f, stack &stack, bool peek) {
+    if (stack.sp < INT) {
+        return false;
+    }
+    byte b[4];
+    auto *pf = (float *)b;
+
+    for (byte &i : b) {
+        popByte(i, stack, false);
+    }
+
+    if (peek) {
+        for (int i = 3; i >= 0; i--) {
+            pushByte(b[i], stack);
+        }
+    }
+
+    f = *pf;
+    return true;
+}
+
+bool popVal(float &f, stack &stack, bool peek) {
+    byte type;
+    popByte(type, stack, false);
+
+    switch (type) {
+        case CHAR:
+            byte tChar;
+            if (!popByte(tChar, stack, peek)) {
+                return false;
+            }
+            f = tChar;
+            break;
+        case INT:
+            int tInt;
+            if (!popInt(tInt, stack, peek)) {
+                return false;
+            }
+            f = tInt;
+            break;
+        case FLOAT:
+            if (!popFloat(f, stack, peek)) {
+                return false;
+            }
+            break;
+        default:
+            Serial.println(F("Type not recognized."));
+            return false;
+    }
+
+    if (peek) {
+        pushByte(type, stack);
+    }
+    return true;
+}
+
+bool popString(int &cp, stack &stack) {
+    byte length;
+    int &sp = stack.sp;
+    if (!popByte(length, stack, false)) {
+        return false;
+    }
+    if (length > sp) {
+        return false;
+    }
+
+    for (; length > 0; length--) {
+        byte temp;
+        popByte(temp, stack, false);
+    }
+
+    cp = sp;
+    return true;
 }

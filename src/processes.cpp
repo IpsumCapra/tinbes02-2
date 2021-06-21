@@ -32,7 +32,6 @@ bool runProcess(char name[]) {
     strcpy(pEntry.name, name);
     pEntry.state = RUNNING;
     pEntry.pc = fEntry.start;
-    pEntry.stack = stack();
     pEntry.id = procID++;
 
     processes[procCount++] = pEntry;
@@ -49,6 +48,8 @@ String printState(byte state) {
             return "PAUSED";
         case TERMINATED:
             return "TERMINATED";
+        default:
+            return "UNKNOWN";
     }
 }
 
@@ -88,3 +89,4 @@ void listProcesses() {
         Serial.println(processes[i].name);
     }
 }
+

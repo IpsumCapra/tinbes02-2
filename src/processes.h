@@ -10,7 +10,6 @@ struct processEntry {
     byte state;
     int pc;
     int fp;
-    int sp;
     int id;
     stack stack;
 };

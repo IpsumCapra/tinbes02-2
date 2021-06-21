@@ -2,18 +2,17 @@
 #include <cli.h>
 #include <filesystem.h>
 #include <constants.h>
-#include <memory.h>
 
 void setup() {
     // Setup serial.
     Serial.begin(BAUD_RATE);
     Serial.setTimeout(-1);
-    Serial.println("Serial ready.");
+    Serial.println(F("Serial ready."));
 
     // Setup filesystem.
     setupFS();
 
-    Serial.println("\nArduinOS RDY");
+    Serial.println(F("\nArduinOS RDY"));
 }
 
 void loop() {

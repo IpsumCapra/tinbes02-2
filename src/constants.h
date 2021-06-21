@@ -22,4 +22,10 @@
 #define STRING 3
 #define FLOAT 4
 
+// Process constants
+#define RUNNING 'r'
+#define PAUSED 'p'
+#define TERMINATED 0
+#define MAXPROCESSES 10
+
 #endif //ARDUINOS_CONSTANTS_H

@@ -7,18 +7,18 @@ int diskSize;
 
 void setupFS() {
     diskSize = EEPROM.length();
-    Serial.print("EEPROM size: ");
+    Serial.print(F("EEPROM size: "));
     Serial.println(diskSize);
 
     // Check if there is a FS structure available, create one if there isn't.
     if (noOfFiles > MAXFILES) {
-        Serial.println("Creating filesystem.");
+        Serial.println(F("Creating filesystem."));
         noOfFiles = 0;
     } else if (noOfFiles > 0) {
         Serial.print(noOfFiles);
-        Serial.println(" files found.");
+        Serial.println(F(" files found."));
     }
-    Serial.println("Filesystem initialized.");
+    Serial.println(F("Filesystem initialized."));
 }
 
 bool writeFATEntry(FATEntry entry) {
@@ -84,16 +84,16 @@ int freeSpace() {
 
 bool storeFile(char name[NAMESIZE], int size) {
     if (size <= 0) {
-        Serial.println("Invalid size.");
+        Serial.println(F("Invalid size."));
         return false;
     }
     if (lookupEntry(name) != -1) {
-        Serial.println("File with specified name already exists.");
+        Serial.println(F("File with specified name already exists."));
         return false;
     }
 
     if (noOfFiles == MAXFILES) {
-        Serial.println("Maximum amount of files reached.");
+        Serial.println(F("Maximum amount of files reached."));
         return false;
     }
 
@@ -112,11 +112,11 @@ bool storeFile(char name[NAMESIZE], int size) {
         strcpy(newEntry.filename, name);
         writeFATEntry(newEntry);
     } else {
-        Serial.println("Not enough space on disk.");
+        Serial.println(F("Not enough space on disk."));
         return false;
     }
 
-    Serial.print("Data: ");
+    Serial.print(F("Data: "));
 
     for (int i = 0; i < size; i++) {
         while (!Serial.available()) {}
@@ -140,12 +140,12 @@ bool retrieveFile(char name[NAMESIZE]) {
                 Serial.print(read);
             }
         } else {
-            Serial.println("Something went wrong.");
+            Serial.println(F("Something went wrong."));
             return false;
         }
 
     } else {
-        Serial.println("Entry not found.");
+        Serial.println(F("Entry not found."));
         return false;
     }
     Serial.println();
@@ -155,7 +155,7 @@ bool retrieveFile(char name[NAMESIZE]) {
 bool deleteFile(char name[NAMESIZE]) {
     int file = lookupEntry(name);
     if (file == -1) {
-        Serial.println("File does not exist.");
+        Serial.println(F("File does not exist."));
         return false;
     }
 
@@ -166,7 +166,7 @@ bool deleteFile(char name[NAMESIZE]) {
         if (readFATEntry(file, entry)) {
             FATEntry lastEntry;
             if(!readFATEntry(noOfFiles, lastEntry)) {
-                Serial.println("Defragmentation failure.");
+                Serial.println(F("Defragmentation failure."));
                 return false;
             }
             for(int i = entry.start; i < lastEntry.start + lastEntry.length - entry.length; i++) {
@@ -175,18 +175,18 @@ bool deleteFile(char name[NAMESIZE]) {
             for (int i = file + 1; i <= noOfFiles; i++) {
                 FATEntry newEntry;
                 if(!readFATEntry(i, newEntry)) {
-                    Serial.println("FS Corrupt.");
+                    Serial.println(F("FS Corrupt."));
                     return false;
                 }
                 newEntry.start -= entry.length;
                 if(!updateFATEntry(i, newEntry)) {
-                    Serial.println("Defragmentation failure.");
+                    Serial.println(F("Defragmentation failure."));
                     return false;
                 }
             }
             deleteFATEntry(file);
         } else {
-            Serial.println("Something went wrong.");
+            Serial.println(F("Something went wrong."));
             return false;
         }
 
@@ -199,12 +199,12 @@ void listFiles() {
     for (int i = 1; i <= noOfFiles; i++) {
         FATEntry entry;
         readFATEntry(i, entry);
-        Serial.print("File name: ");
+        Serial.print(F("File name: "));
         Serial.println(entry.filename);
-        Serial.print("Starting position: ");
+        Serial.print(F("Starting position: "));
         Serial.println(entry.start);
-        Serial.print("Size: ");
+        Serial.print(F("Size: "));
         Serial.print(entry.length);
-        Serial.println(" bytes");
+        Serial.println(F(" bytes"));
     }
 }

@@ -1,28 +1,29 @@
 #include <cli_commands.h>
 #include <filesystem.h>
+#include <processes.h>
 #include <Arduino.h>
 
 void store(Parameters pars) {
     int size = strtol(pars[1], NULL, 10);
 
     if(storeFile(pars[0], size)) {
-        Serial.println("File stored successfully.");
+        Serial.println(F("File stored."));
     } else {
-        Serial.println("Could not store file.");
+        Serial.println(F("Could not store file."));
     }
 }
 
 void retrieve(Parameters pars) {
     if(!retrieveFile(pars[0])) {
-        Serial.println("Could not retrieve file.");
+        Serial.println(F("Could not retrieve file."));
     }
 }
 
 void erase(Parameters pars) {
     if(deleteFile(pars[0])) {
-        Serial.println("File deleted successfully.");
+        Serial.println(F("File deleted."));
     } else {
-        Serial.println("Could not delete file.");
+        Serial.println(F("Could not delete file."));
     }
 }
 
@@ -31,33 +32,34 @@ void files(Parameters pars) {
 }
 
 void freespace(Parameters pars) {
-    Serial.print("Free space: ");
+    Serial.print(F("Free space: "));
     Serial.print(freeSpace());
-    Serial.println(" bytes");
+    Serial.println(F(" bytes"));
 }
 
 void run(Parameters pars) {
-    Serial.println("run");
-    Serial.println(pars[0]);
+    if(!runProcess(pars[0])) {
+        Serial.println(F("Failed to run."));
+    }
 }
 
 void list(Parameters pars) {
-    Serial.println("list");
+    listProcesses();
 }
 
 void suspend(Parameters pars) {
-    Serial.println("suspend");
-    Serial.println(pars[0]);
+    int id = strtol(pars[0], NULL, 10);
+    setState(id, PAUSED);
 }
 
 void resume(Parameters pars) {
-    Serial.println("resume");
-    Serial.println(pars[0]);
+    int id = strtol(pars[0], NULL, 10);
+    setState(id, RUNNING);
 }
 
 void kill(Parameters pars) {
-    Serial.println("kill");
-    Serial.println(pars[0]);
+    int id = strtol(pars[0], NULL, 10);
+    killProcess(id);
 }
 
 void reformat(Parameters pars) {
@@ -65,5 +67,5 @@ void reformat(Parameters pars) {
     for (int i = 1; i < EEPROM.length(); i++) {
         EEPROM[i] = 255;
     }
-    Serial.println("Reformat complete.");
+    Serial.println(F("Reformatted."));
 }

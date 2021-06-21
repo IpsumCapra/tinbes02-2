@@ -119,14 +119,14 @@ bool setVar(char name, int process, stack &stack) {
 
     // Too many vars?
     if (noOfVars == MAXVARS) {
-        Serial.println("Max amount reached.");
+        Serial.println(F("Max amount reached."));
         return false;
     }
 
     // Get variable type from stack.
     byte type;
     if (!popByte(type, stack)) {
-        Serial.println("Stack not valid");
+        Serial.println(F("Stack not valid"));
         return false;
     }
 
@@ -136,7 +136,7 @@ bool setVar(char name, int process, stack &stack) {
         size = type;
     } else {
         if (!popByte(size, stack)) {
-            Serial.println("No string size found.");
+            Serial.println(F("No string size found."));
             return false;
         }
     }
@@ -144,7 +144,7 @@ bool setVar(char name, int process, stack &stack) {
     // Try to allocate space.
     int address;
     if(!findSpace(size, address)) {
-        Serial.println("Not enough space.");
+        Serial.println(F("Not enough space."));
         return false;
     }
 
@@ -152,7 +152,7 @@ bool setVar(char name, int process, stack &stack) {
     for (int i = size - 1; i >= 0; i--) {
         byte temp;
         if (!popByte(temp, stack)) {
-            Serial.println("Invalid variable.");
+            Serial.println(F("Invalid variable."));
             return false;
         }
         memory[address + i] = temp;
@@ -166,14 +166,14 @@ bool setVar(char name, int process, stack &stack) {
 bool getVar(char name, int process, stack &stack) {
     // Check amount of variables.
     if (noOfVars == 0) {
-        Serial.println("No variables.");
+        Serial.println(F("No variables."));
         return false;
     }
 
     // Check for existence.
     int varId = varExists(name, process);
     if (varId == -1) {
-        Serial.println("Var does not exist.");
+        Serial.println(F("Var does not exist."));
         return false;
     }
 

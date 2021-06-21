@@ -2,6 +2,7 @@
 #include <cli.h>
 #include <filesystem.h>
 #include <constants.h>
+#include <processes.h>
 
 void setup() {
     // Setup serial.
@@ -17,4 +18,5 @@ void setup() {
 
 void loop() {
     processInput();
+    runProcesses();
 }

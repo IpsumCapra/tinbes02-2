@@ -1,5 +1,6 @@
 #include <processes.h>
 #include <filesystem.h>
+#include <executor.h>
 
 processEntry processes[MAXPROCESSES];
 int procCount = 0;
@@ -90,3 +91,11 @@ void listProcesses() {
     }
 }
 
+void runProcesses() {
+    for (int i = 0; i < procCount; i++) {
+        processEntry &pEntry = processes[i];
+        if (pEntry.state == RUNNING) {
+            execute(pEntry);
+        }
+    }
+}

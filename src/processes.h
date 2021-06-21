@@ -11,6 +11,7 @@ struct processEntry {
     int pc;
     int fp;
     int id;
+    int lp;
     stack stack;
 };
 
@@ -20,6 +21,7 @@ String printState(byte state);
 bool setState(int id, byte state);
 bool killProcess(int id);
 void listProcesses();
+void runProcesses();
 
 
 

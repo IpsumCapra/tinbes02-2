@@ -29,7 +29,7 @@ bool runProcess(char name[]) {
         return false;
     }
 
-    processEntry pEntry;
+    processEntry pEntry = processEntry();
     strcpy(pEntry.name, name);
     pEntry.state = RUNNING;
     pEntry.pc = fEntry.start;
@@ -44,13 +44,13 @@ bool runProcess(char name[]) {
 String printState(byte state) {
     switch (state) {
         case RUNNING:
-            return "RUNNING";
+            return F("RUNNING");
         case PAUSED:
-            return "PAUSED";
+            return F("PAUSED");
         case TERMINATED:
-            return "TERMINATED";
+            return F("TERMINATED");
         default:
-            return "UNKNOWN";
+            return F("UNKNOWN");
     }
 }
 

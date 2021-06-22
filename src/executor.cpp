@@ -395,6 +395,11 @@ void execute(processEntry proc) {
             }
             break;
         }
+        case ENDIF:
+            pc++;
+            float tmp;
+            popVal(tmp, stack, false);
+            break;
         case LOOP:
             proc.lp = pc++;
             break;
@@ -540,7 +545,7 @@ void execute(processEntry proc) {
             pushInt(getCurrentProcID(), stack);
             break;
         }
-        case WAITUNTILDONE:
+        case WAITUNTILDONE: {
             float val;
             popVal(val, stack, false);
 
@@ -550,5 +555,53 @@ void execute(processEntry proc) {
                 pushInt(val, stack);
             }
             break;
+        }
+        case CONSTRAIN: {
+            pc++;
+            float x;
+            float y;
+            float z;
+            popVal(x, stack, false);
+            popVal(y, stack, false);
+            popVal(z, stack, false);
+            pushFloat(min(max(x, y), z), stack);
+            break;
+        }
+        case MAP: {
+            pc++;
+            float a;
+            float b;
+            float c;
+            float d;
+            float e;
+            popVal(a, stack, false);
+            popVal(b, stack, false);
+            popVal(c, stack, false);
+            popVal(d, stack, false);
+            popVal(e, stack, false);
+            pushFloat(a * (e - d) / (b - c), stack);
+            break;
+        }
+        case PINMODE:
+        case ANALOGWRITE:
+        case DIGITALWRITE: {
+            float x;
+            popVal(x, stack, false);
+            float y;
+            popVal(y, stack, false);
+
+            switch (instruction) {
+                case PINMODE:
+                    pinMode(x, y);
+                    break;
+                case ANALOGWRITE:
+                    analogWrite(x, y);
+                    break;
+                case DIGITALWRITE:
+                    digitalWrite(x, y);
+                    break;
+            }
+            break;
+        }
     }
 }

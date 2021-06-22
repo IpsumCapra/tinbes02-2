@@ -22,6 +22,8 @@ bool setState(int id, byte state);
 bool killProcess(int id);
 void listProcesses();
 void runProcesses();
+int getCurrentProcID();
+byte getProcessState(int id);
 
 
 

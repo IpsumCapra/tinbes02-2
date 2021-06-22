@@ -2,6 +2,7 @@
 #include <EEPROM.h>
 #include <instruction_set.h>
 #include <Arduino.h>
+#include <filesystem.h>
 
 // Push char, int or float to stack.
 void pushVal(processEntry proc) {
@@ -26,8 +27,8 @@ void pushString(processEntry proc) {
 
     int size = 1;
 
-    while (EEPROM[pc++] != 0x00) {
-        pushByte(EEPROM[pc], stack);
+    while (EEPROM[pc] != 0x00) {
+        pushByte(EEPROM[pc++], stack);
         size++;
     }
 
@@ -267,6 +268,42 @@ void binaryOperation(processEntry proc) {
     }
 }
 
+void readFromFile(processEntry proc) {
+    stack &stack = proc.stack;
+    int &pc = proc.pc;
+    int &fp = proc.fp;
+
+    // Instruction, and variable type.
+    byte type = EEPROM[pc++];
+
+    // How many bytes to read, also type indicator.
+    int readBack = 1;
+
+    switch (type) {
+        case READSTRING:
+            readBack = 3;
+
+            while (EEPROM[fp] != 0x00) {
+                pushByte(EEPROM[fp++], stack);
+            }
+            pushByte(EEPROM[fp++], stack);
+            pushByte(EEPROM[fp++], stack);
+            break;
+        case READFLOAT:
+            readBack += 2;
+        case READINT:
+            readBack += 1;
+        case READCHAR:
+            for (int i = 0; i < readBack; i++) {
+                pushByte(EEPROM[fp++], stack);
+            }
+            break;
+    }
+
+    // Push type onto stack.
+    pushByte(readBack, stack);
+}
+
 // Find next instruction to execute.
 void execute(processEntry proc) {
     stack stack = proc.stack;
@@ -403,7 +440,115 @@ void execute(processEntry proc) {
                 pc--;
                 pushFloat(dUntilVal, stack);
             }
+            break;
         }
+        case OPEN: {
+            pc++;
+            int openCp;
+            popString(openCp, stack);
+            char name[NAMESIZE];
+            int tmp = 0;
+            while (stack.stack[openCp] != 0x00) {
+                name[tmp++] = (char) stack.stack[openCp++];
+            }
+            // Size variable.
+            float openVal;
+            popVal(openVal, stack, false);
+            int fileEntry = lookupEntry(name);
+            // File does not yet exist.
+            FATEntry fEntry;
+            if (fileEntry == -1) {
+                fEntry.length = openVal;
+                strcpy(fEntry.filename, name);
+                if (freeSpace() < openVal) {
+                    Serial.println(F("No space to store file."));
+                    break;
+                }
+                int fStart = EEPROM.length() - freeSpace();
+                fEntry.start = fStart;
+                if(!writeFATEntry(fEntry)) {
+                    Serial.println(F("FAT full."));
+                }
+                proc.fp = fStart;
+            } else {
+                readFATEntry(fileEntry, fEntry);
+                proc.fp = fEntry.start;
+            }
+            break;
+        }
+        case WRITE: {
+            pc++;
 
+            byte type;
+            popByte(type, stack, true);
+
+            int &fp = proc.fp;
+
+            if (type != STRING) {
+                float val;
+                popVal(val, stack, false);
+                switch (type) {
+                    case CHAR:
+                        EEPROM[fp++] = (char)val;
+                        break;
+                    case INT:
+                        EEPROM[fp++] = highByte((int)val);
+                        EEPROM[fp++] = lowByte((int)val);
+                        break;
+                    case FLOAT:
+                        byte b[4];
+                        auto *pf = (float *)b;
+                        *pf = val;
+                        for (int i = 3; i >= 0; i--) {
+                            EEPROM[fp++] = b[i];
+                        }
+                        break;
+                }
+            } else {
+                popByte(type, stack, false);
+                int cp;
+                int size = 1;
+                popString(cp, stack);
+                while (stack.stack[cp] != 0x00) {
+                    size++;
+                    EEPROM[fp++] = stack.stack[cp++];
+                }
+                EEPROM[fp++] = 0x00;
+                EEPROM[fp++] = size;
+            }
+            break;
+        }
+        case READCHAR:
+        case READINT:
+        case READSTRING:
+        case READFLOAT:
+            readFromFile(proc);
+            break;
+        case CLOSE:
+            pc++;
+            break;
+        case FORK: {
+            pc++;
+            int fCp;
+            popString(fCp, stack);
+            char pName[NAMESIZE];
+            int idx = 0;
+            while (stack.stack[fCp] != 0x00) {
+                pName[idx++] = stack.stack[fCp++];
+            }
+            runProcess(pName);
+            pushInt(getCurrentProcID(), stack);
+            break;
+        }
+        case WAITUNTILDONE:
+            float val;
+            popVal(val, stack, false);
+
+            if (getProcessState(val) != TERMINATED) {
+                pc++;
+            } else {
+                pushInt(val, stack);
+            }
+            break;
     }
 }

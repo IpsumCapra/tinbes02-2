@@ -99,3 +99,16 @@ void runProcesses() {
         }
     }
 }
+
+int getCurrentProcID() {
+    return procCount - 1;
+}
+
+byte getProcessState(int id) {
+    for (int i = 0; i < procCount; i++) {
+        if (processes[i].id == id) {
+            return processes[i].state;
+        }
+    }
+    return -1;
+}

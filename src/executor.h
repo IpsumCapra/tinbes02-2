@@ -11,6 +11,8 @@ void print(processEntry proc, bool newLine);
 void unaryOperation(processEntry proc);
 void binaryOperation(processEntry proc);
 
+void readFromFile(processEntry proc);
+
 void execute(processEntry proc);
 
 #endif //ARDUINOS_EXECUTOR_H

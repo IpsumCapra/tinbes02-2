@@ -5,7 +5,7 @@
 #include <filesystem.h>
 
 // Push char, int or float to stack.
-void pushVal(processEntry proc) {
+void pushVal(processEntry &proc) {
     stack &stack = proc.stack;
     int &pc = proc.pc;
 
@@ -18,7 +18,8 @@ void pushVal(processEntry proc) {
 }
 
 // Push string to stack.
-void pushString(processEntry proc) {
+void pushString(processEntry &proc) {
+    Serial.println("Pushing string.");
     stack &stack = proc.stack;
     int &pc = proc.pc;
 
@@ -32,13 +33,16 @@ void pushString(processEntry proc) {
         size++;
     }
 
+    pc++;
+
     pushByte(0x00, stack);
     pushByte(size, stack);
     pushByte(STRING, stack);
 }
 
 // Print variable with or without newline.
-void print(processEntry proc, bool newLine) {
+void print(processEntry &proc, bool newLine) {
+    Serial.println("Printing: ");
     stack &stack = proc.stack;
     int &pc = proc.pc;
 
@@ -58,8 +62,8 @@ void print(processEntry proc, bool newLine) {
         popByte(type, stack, false);
         int cp;
         popString(cp, stack);
-        while (stack.stack[cp++] != 0x00) {
-            Serial.print((char)stack.stack[cp]);
+        while (stack.stack[cp] != 0x00) {
+            Serial.print((char)stack.stack[cp++]);
         }
     }
     if (newLine) {
@@ -68,7 +72,7 @@ void print(processEntry proc, bool newLine) {
 }
 
 // Function to handle all unary operations.
-void unaryOperation(processEntry proc) {
+void unaryOperation(processEntry &proc) {
     stack &stack = proc.stack;
     int &pc = proc.pc;
 
@@ -156,7 +160,7 @@ void unaryOperation(processEntry proc) {
 
 
 // Function to handle all binary operations.
-void binaryOperation(processEntry proc) {
+void binaryOperation(processEntry &proc) {
     stack &stack = proc.stack;
     int &pc = proc.pc;
 
@@ -268,7 +272,7 @@ void binaryOperation(processEntry proc) {
     }
 }
 
-void readFromFile(processEntry proc) {
+void readFromFile(processEntry &proc) {
     stack &stack = proc.stack;
     int &pc = proc.pc;
     int &fp = proc.fp;
@@ -305,11 +309,15 @@ void readFromFile(processEntry proc) {
 }
 
 // Find next instruction to execute.
-void execute(processEntry proc) {
+void execute(processEntry &proc) {
     stack stack = proc.stack;
     int &pc = proc.pc;
+    Serial.println(pc);
 
     byte instruction = EEPROM[pc];
+
+    Serial.println(instruction);
+
     switch (instruction) {
         case CHAR:
         case INT:
@@ -601,6 +609,7 @@ void execute(processEntry proc) {
                     digitalWrite(x, y);
                     break;
             }
+            pc++;
             break;
         }
     }

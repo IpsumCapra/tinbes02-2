@@ -65,6 +65,9 @@ bool setState(int i, byte state) {
     if (procState == state) {
         Serial.print("Already " + printState(state));
         return false;
+    } else if (procState == TERMINATED) {
+        Serial.println(F("Cannot revive dead process."));
+        return false;
     } else {
         procState = state;
         Serial.println("State now " + printState(state));

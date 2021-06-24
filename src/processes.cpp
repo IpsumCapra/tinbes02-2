@@ -23,6 +23,7 @@ bool runProcess(char name[]) {
     int entry = lookupEntry(name);
     if (entry == -1) {
         Serial.println(F("File not found."));
+        return false;
     }
     FATEntry fEntry;
     if (!readFATEntry(entry, fEntry)) {

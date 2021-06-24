@@ -19,7 +19,7 @@ void pushVal(processEntry &proc) {
 
 // Push string to stack.
 void pushString(processEntry &proc) {
-    Serial.println("Pushing string.");
+//    Serial.println("Pushing string.");
     stack &stack = proc.stack;
     int &pc = proc.pc;
 
@@ -42,7 +42,7 @@ void pushString(processEntry &proc) {
 
 // Print variable with or without newline.
 void print(processEntry &proc, bool newLine) {
-    Serial.println("Printing: ");
+//    Serial.println("Printing: ");
     stack &stack = proc.stack;
     int &pc = proc.pc;
 
@@ -151,10 +151,13 @@ void unaryOperation(processEntry &proc) {
         case CHAR:
             pushByte(val, stack);
             pushByte(rType, stack);
+            break;
         case INT:
             pushInt(val, stack);
+            break;
         case FLOAT:
             pushFloat(val, stack);
+            break;
     }
 }
 
@@ -265,10 +268,13 @@ void binaryOperation(processEntry &proc) {
         case CHAR:
             pushByte(val, stack);
             pushByte(rType, stack);
+            break;
         case INT:
             pushInt(val, stack);
+            break;
         case FLOAT:
             pushFloat(val, stack);
+            break;
     }
 }
 
@@ -310,13 +316,14 @@ void readFromFile(processEntry &proc) {
 
 // Find next instruction to execute.
 void execute(processEntry &proc) {
-    stack stack = proc.stack;
+    stack &stack = proc.stack;
     int &pc = proc.pc;
-    Serial.println(pc);
+//    Serial.print(pc);
+//    Serial.print(" - ");
 
     byte instruction = EEPROM[pc];
 
-    Serial.println(instruction);
+//    Serial.println(instruction);
 
     switch (instruction) {
         case CHAR:
@@ -387,19 +394,21 @@ void execute(processEntry &proc) {
             break;
         case IF: {
             pc++;
-            byte ifByte;
-            popByte(ifByte, stack, true);
+            float ifByte;
+            popVal(ifByte, stack, true);
+//            Serial.println(ifByte);
             if (ifByte == 0) {
-                pc += EEPROM[pc];
+                pc += EEPROM[pc] + 1;
             }
             break;
         }
         case ELSE: {
             pc++;
-            byte elseByte;
-            popByte(elseByte, stack, true);
+            float elseByte;
+            popVal(elseByte, stack, true);
+//            Serial.println(elseByte);
             if (elseByte != 0) {
-                pc += EEPROM[pc];
+                pc += EEPROM[pc] + 1;
             }
             break;
         }
@@ -418,19 +427,25 @@ void execute(processEntry &proc) {
             pc++;
             byte wArg1 = EEPROM[pc++];
             byte wArg2 = EEPROM[pc++];
+//            Serial.print(wArg1);
+//            Serial.print(" ");
+//            Serial.println(wArg2);
             float whileVal;
             popVal(whileVal, stack, false);
             if (whileVal == 0) {
                 pc += wArg2 + 1;
             } else {
-                pushByte(wArg1 + wArg2 + 4, stack);
+//                Serial.println(wArg1 + wArg2 + 4);
+                pushByte((wArg1 + wArg2 + 4), stack);
             }
             break;
         }
         case ENDWHILE: {
             pc++;
-            float eWhileArg;
-            popVal(eWhileArg, stack, false);
+            byte eWhileArg;
+            popByte(eWhileArg, stack, false);
+//            Serial.println(eWhileArg);
+//            memDump(stack);
             pc -= eWhileArg;
             break;
         }
@@ -443,13 +458,17 @@ void execute(processEntry &proc) {
         }
         case MILLIS:
             pc++;
-            pushInt(millis(), stack);
+//            Serial.print("Millis: ");
+//            Serial.println(millis());
+            pushInt((int)millis(), stack);
             break;
         case DELAYUNTIL: {
             pc++;
             float dUntilVal;
             popVal(dUntilVal, stack, false);
-            if (dUntilVal > millis()) {
+//            Serial.print("DU: ");
+//            Serial.println(dUntilVal);
+            if ((int)dUntilVal > (int)millis()) {
                 pc--;
                 pushFloat(dUntilVal, stack);
             }
@@ -457,16 +476,23 @@ void execute(processEntry &proc) {
         }
         case OPEN: {
             pc++;
-            int openCp;
-            popString(openCp, stack);
-            char name[NAMESIZE];
-            int tmp = 0;
-            while (stack.stack[openCp] != 0x00) {
-                name[tmp++] = (char) stack.stack[openCp++];
-            }
             // Size variable.
             float openVal;
             popVal(openVal, stack, false);
+            byte tmpType;
+            popByte(tmpType, stack, false);
+            int openCp;
+            popString(openCp, stack);
+            char name[NAMESIZE];
+            int i = 0;
+            while (stack.stack[openCp + 1] != 0x00) {
+//                Serial.print((char) stack.stack[openCp]);
+                name[i++] = (char) stack.stack[openCp++];
+            }
+            name[i++] = (char) stack.stack[openCp];
+            name[i] = 0x00;
+//            Serial.print("\n");
+
             int fileEntry = lookupEntry(name);
             // File does not yet exist.
             FATEntry fEntry;
@@ -477,7 +503,7 @@ void execute(processEntry &proc) {
                     Serial.println(F("No space to store file."));
                     break;
                 }
-                int fStart = EEPROM.length() - freeSpace();
+                int fStart = EEPROM.length() - freeSpace() + 1;
                 fEntry.start = fStart;
                 if(!writeFATEntry(fEntry)) {
                     Serial.println(F("FAT full."));
@@ -542,14 +568,18 @@ void execute(processEntry &proc) {
             break;
         case FORK: {
             pc++;
-            int fCp;
-            popString(fCp, stack);
-            char pName[NAMESIZE];
-            int idx = 0;
-            while (stack.stack[fCp] != 0x00) {
-                pName[idx++] = stack.stack[fCp++];
+            byte tmpType;
+            popByte(tmpType, stack, false);
+            int openCp;
+            popString(openCp, stack);
+            char name[NAMESIZE];
+            int i = 0;
+            while (stack.stack[openCp + 1] != 0x00) {
+                name[i++] = (char) stack.stack[openCp++];
             }
-            runProcess(pName);
+            name[i++] = (char) stack.stack[openCp];
+            name[i] = 0x00;
+            runProcess(name);
             pushInt(getCurrentProcID(), stack);
             break;
         }
@@ -557,7 +587,7 @@ void execute(processEntry &proc) {
             float val;
             popVal(val, stack, false);
 
-            if (getProcessState(val) != TERMINATED) {
+            if (getProcessState(val) == TERMINATED) {
                 pc++;
             } else {
                 pushInt(val, stack);
@@ -569,9 +599,9 @@ void execute(processEntry &proc) {
             float x;
             float y;
             float z;
-            popVal(x, stack, false);
-            popVal(y, stack, false);
             popVal(z, stack, false);
+            popVal(y, stack, false);
+            popVal(x, stack, false);
             pushFloat(min(max(x, y), z), stack);
             break;
         }
@@ -582,21 +612,21 @@ void execute(processEntry &proc) {
             float c;
             float d;
             float e;
-            popVal(a, stack, false);
-            popVal(b, stack, false);
-            popVal(c, stack, false);
-            popVal(d, stack, false);
             popVal(e, stack, false);
+            popVal(d, stack, false);
+            popVal(c, stack, false);
+            popVal(b, stack, false);
+            popVal(a, stack, false);
             pushFloat(a * (e - d) / (b - c), stack);
             break;
         }
         case PINMODE:
         case ANALOGWRITE:
         case DIGITALWRITE: {
-            float x;
-            popVal(x, stack, false);
             float y;
             popVal(y, stack, false);
+            float x;
+            popVal(x, stack, false);
 
             switch (instruction) {
                 case PINMODE:
@@ -611,6 +641,10 @@ void execute(processEntry &proc) {
             }
             pc++;
             break;
+            default:
+                Serial.println(F("Execution error!"));
+                proc.state = TERMINATED;
+                break;
         }
     }
 }

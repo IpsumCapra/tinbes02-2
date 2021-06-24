@@ -267,8 +267,12 @@ bool popInt(int &i, stack &stack, bool peek) {
     } else {
         popByte(hb, stack, false);
     }
-    Serial.println(lb);
-    Serial.println(hb);
+//    Serial.print(F("INT: "));
+//    Serial.print(lb);
+//    Serial.print(F(" "));
+//    Serial.print(hb);
+//    Serial.print(" - ");
+//    Serial.println(word(hb, lb));
     i = word(hb, lb);
     return true;
 }
